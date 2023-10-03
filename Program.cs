@@ -2,9 +2,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using QuoteWorldAPI.Entities;
 using QuoteWorldAPI.Entities.Seeders;
+using QuoteWorldAPI.Services.Interfaces;
+using QuoteWorldAPI.Services;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
+using QuoteWorldAPI.Repositories.Interfaces;
+using QuoteWorldAPI.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,16 +22,16 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Host.UseSerilog(); // Use Serilog as the logging provider
-
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<QuoteWorldContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("QuoteWorldConnectionString")));
 builder.Services.AddScoped<QuoteDataSeeder>();
+builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddScoped<IQuoteService, QuoteService>();
+builder.Services.AddScoped<IQuoteRepository, QuoteRepository>();
+
 
 var app = builder.Build();
 
